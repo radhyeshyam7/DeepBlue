@@ -1,0 +1,130 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.ingestion.ingest
+    deps:
+    - path: mlops/ingestion/ingest.py
+      hash: md5
+      md5: 26a571c6eecc37c7e6d70fd06b37f9a6
+      size: 7976
+    - path: mlops/params.yaml
+      hash: md5
+      md5: c2631a2cf8926a98ad9a2039ed1dcfbe
+      size: 1366
+    outs:
+    - path: mlops/data/raw/transactions_raw.csv
+      hash: md5
+      md5: fb84b3c0b32c6e27a0c904e8629c32d8
+      size: 466405
+  validate:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.validation.validate
+    deps:
+    - path: mlops/data/raw/transactions_raw.csv
+      hash: md5
+      md5: fb84b3c0b32c6e27a0c904e8629c32d8
+      size: 466405
+    - path: mlops/params.yaml
+      hash: md5
+      md5: c2631a2cf8926a98ad9a2039ed1dcfbe
+      size: 1366
+    - path: mlops/validation/validate.py
+      hash: md5
+      md5: 12a4f13e5b26fb04cb89827b3935a57a
+      size: 5910
+  preprocess:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.preprocessing.preprocess
+    deps:
+    - path: mlops/data/raw/transactions_raw.csv
+      hash: md5
+      md5: fb84b3c0b32c6e27a0c904e8629c32d8
+      size: 466405
+    - path: mlops/params.yaml
+      hash: md5
+      md5: c2631a2cf8926a98ad9a2039ed1dcfbe
+      size: 1366
+    - path: mlops/preprocessing/preprocess.py
+      hash: md5
+      md5: e1f58c7de134cc49ea6d65ea9a9e6f06
+      size: 3259
+    outs:
+    - path: mlops/data/processed/transactions_processed.csv
+      hash: md5
+      md5: fb84b3c0b32c6e27a0c904e8629c32d8
+      size: 466405
+  build_features:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.features.build_features
+    deps:
+    - path: mlops/data/processed/transactions_processed.csv
+      hash: md5
+      md5: fb84b3c0b32c6e27a0c904e8629c32d8
+      size: 466405
+    - path: mlops/features/build_features.py
+      hash: md5
+      md5: 300b23333e6113f1304605962096407d
+      size: 6361
+    - path: mlops/params.yaml
+      hash: md5
+      md5: c2631a2cf8926a98ad9a2039ed1dcfbe
+      size: 1366
+    outs:
+    - path: mlops/data/features/features_test.csv
+      hash: md5
+      md5: b3e6787b6e0c46184995e258a8d4d00d
+      size: 281893
+    - path: mlops/data/features/features_train.csv
+      hash: md5
+      md5: 54d81186df2e5b973672474c212ae388
+      size: 1126571
+    - path: mlops/data/features/scaler.joblib
+      hash: md5
+      md5: 1599e9e7cb9de1c493207eb548192644
+      size: 1479
+  train:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.training.train
+    deps:
+    - path: mlops/data/features/features_train.csv
+      hash: md5
+      md5: 54d81186df2e5b973672474c212ae388
+      size: 1126571
+    - path: mlops/params.yaml
+      hash: md5
+      md5: c2631a2cf8926a98ad9a2039ed1dcfbe
+      size: 1366
+    - path: mlops/training/train.py
+      hash: md5
+      md5: b2fb7d88c6d791532b9d89ce67991ee9
+      size: 5551
+    params:
+      params.yaml:
+        model.contamination: 0.08
+        model.n_estimators: 150
+        model.random_state: 42
+    outs:
+    - path: mlops/artifacts/isolation_forest.joblib
+      hash: md5
+      md5: aa436220a83cfd7d9bf616203cd02a1a
+      size: 1793432
+  evaluate:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.evaluation.evaluate
+    deps:
+    - path: mlops/artifacts/isolation_forest.joblib
+      hash: md5
+      md5: aa436220a83cfd7d9bf616203cd02a1a
+      size: 1793432
+    - path: mlops/data/features/features_test.csv
+      hash: md5
+      md5: b3e6787b6e0c46184995e258a8d4d00d
+      size: 281893
+    - path: mlops/evaluation/evaluate.py
+      hash: md5
+      md5: 7bfe598c0eed0c509aa3a5487f2426e9
+      size: 7158
+    - path: mlops/params.yaml
+      hash: md5
+      md5: c2631a2cf8926a98ad9a2039ed1dcfbe
+      size: 1366
+    outs:
+    - path: mlops/artifacts/evaluation_metrics.json
+      hash: md5
+      md5: 20d1146cb534e9f76394da623cf48cd4
+      size: 586

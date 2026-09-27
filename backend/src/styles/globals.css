@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+:root {
+  /* DeepBlue Color System */
+  --db-deep-blue: #0a0e27;
+  --db-dark-blue: #141b3d;
+  --db-mid-blue: #1e2a52;
+  --db-accent-blue: #3b82f6;
+  --db-safe: #3b82f6;
+  --db-caution: #f59e0b;
+  --db-risk: #ef4444;
+  
+  /* Glass & Depth */
+  --glass-bg: rgba(30, 42, 82, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* Ambient */
+  --ambient-glow: rgba(59, 130, 246, 0.15);
+  
+  /* Logo colors */
+  --logo-primary: #3b82f6;
+  --logo-accent: #60a5fa;
+}
+
+/* Theme: Deep Blue (default) */
+[data-theme="deep-blue"] {
+  --bg-primary: #0a0e27;
+  --bg-secondary: #141b3d;
+  --bg-tertiary: #1e2a52;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #60a5fa;
+  --logo-primary: #3b82f6;
+  --logo-accent: #60a5fa;
+}
+
+/* Theme: Ocean Teal */
+[data-theme="ocean-teal"] {
+  --bg-primary: #0a1f1f;
+  --bg-secondary: #0f2d2d;
+  --bg-tertiary: #164040;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-primary: #14b8a6;
+  --accent-secondary: #2dd4bf;
+  --logo-primary: #14b8a6;
+  --logo-accent: #5eead4;
+}
+
+/* Theme: Midnight Violet */
+[data-theme="midnight-violet"] {
+  --bg-primary: #1a0a27;
+  --bg-secondary: #2d1b3d;
+  --bg-tertiary: #3f2a52;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #a78bfa;
+  --logo-primary: #8b5cf6;
+  --logo-accent: #c4b5fd;
+}
+
+/* Theme: Graphite Gradient */
+[data-theme="graphite-gradient"] {
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-primary: #6366f1;
+  --accent-secondary: #818cf8;
+  --logo-primary: #6366f1;
+  --logo-accent: #a5b4fc;
+}
+
+/* Theme: Calm Amber */
+[data-theme="calm-amber"] {
+  --bg-primary: #1a1108;
+  --bg-secondary: #2d1f0f;
+  --bg-tertiary: #3f2d16;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-primary: #f59e0b;
+  --accent-secondary: #fbbf24;
+  --logo-primary: #f59e0b;
+  --logo-accent: #fcd34d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary, var(--db-deep-blue));
+  color: var(--text-primary, #ffffff);
+  overflow-x: hidden;
+  transition: background-color 0.5s ease;
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px var(--glass-shadow);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Remove default focus outlines, we'll handle them custom */
+*:focus {
+  outline: none;
+}
+
+/* Smooth transitions globally */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

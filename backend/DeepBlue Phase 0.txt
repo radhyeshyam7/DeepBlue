@@ -1,0 +1,722 @@
+DeepBlue Phase 0
+
+
+┌──────────────────────────────┐
+│        UPI MOBILE APP        │
+│ (Amount + Payee Entered)     │
+└──────────────┬───────────────┘
+               │  Transaction Intent
+               ▼
+┌──────────────────────────────┐
+│   TRANSACTION INTENT LAYER   │
+│  (No money movement yet)     │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ USER PROFILE & HISTORY STORE │
+│ - Avg amount                 │
+│ - Frequent payees            │
+│ - Account age                │
+│ - Past behavior              │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ FEATURE EXTRACTION ENGINE    │
+│ - New payee check            │
+│ - Amount deviation           │
+│ - Timing anomaly             │
+│ - Transaction hesitation    │
+│ - User maturity flag         │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ RISK DETECTION ENGINE        │
+│ ├─ Rule-Based Engine         │
+│ ├─ ML Anomaly Detector       │
+│ └─ Intent Analyzer           │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ PAYEE TRUST SCORING MODULE   │
+│ - Known / New / Risky        │
+│ - Cancel frequency           │
+│ - Usage pattern              │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ RISK SCORING & DECISION UNIT │
+│ - Final Risk Score (0–100)   │
+│ - Low / Medium / High        │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ ALERT & MITIGATION LAYER     │
+│ - Plain-language warning    │
+│ - Smart delay               │
+│ - Cooling-off rules         │
+└──────────────┬───────────────┘
+               │
+               ▼
+══════════════ PIN BOUNDARY ══════════════
+               │
+               ▼
+┌──────────────────────────────┐
+│       UPI PIN ENTRY          │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│     PAYMENT EXECUTION        │
+│  (Bank / NPCI / PSP)         │
+└──────────────────────────────┘
+
+
+
+🔷 ARCHITECTURE EXPLANATION (BLOCK BY BLOCK)
+1️⃣ UPI Mobile App
+
+User enters amount and payee
+
+Clicks “Pay”
+
+No PIN yet
+
+This is where transaction intent is created.
+
+2️⃣ Transaction Intent Layer
+
+Captures intent as an event
+
+Ensures zero money movement
+
+Triggers fraud analysis pipeline
+
+👉 This layer is the entry point of your system.
+
+3️⃣ User Profile & History Store
+
+Stores:
+
+Average transaction amount
+
+Frequent recipients
+
+Account age (for cooling-off)
+
+Past cancellations / warnings
+
+👉 Enables personalized detection, not generic rules.
+
+4️⃣ Feature Extraction Engine
+
+Converts raw data into risk features:
+
+Examples:
+
+Is this a new payee?
+
+Is the amount unusually high?
+
+Is this happening at an odd time?
+
+Did the user hesitate before paying?
+
+Is the user new to UPI?
+
+This runs in milliseconds.
+
+5️⃣ Risk Detection Engine
+
+This is the brain.
+
+It has three sub-parts:
+
+a) Rule-Based Engine
+
+Transparent
+
+Explainable
+
+Immediate red flags
+
+b) ML Anomaly Detector
+
+Detects deviation from user’s normal behavior
+
+Catches subtle patterns
+
+c) Intent Analyzer
+
+Uses user’s selected payment reason
+
+Boosts risk for scam-related intents
+
+6️⃣ Payee Trust Scoring Module
+
+Evaluates receiver risk, not just sender behavior.
+
+Payee classified as:
+
+Trusted
+
+New / Neutral
+
+Unverified / Risky
+
+Displayed visually to the user.
+
+7️⃣ Risk Scoring & Decision Unit
+
+All signals are combined into a single risk score (0–100).
+
+Risk bands:
+
+Low → Allow
+
+Medium → Warn
+
+High → Delay / Block
+
+This avoids binary “fraud / not fraud” thinking.
+
+8️⃣ Alert & Mitigation Layer
+
+This is where fraud is actually prevented.
+
+Includes:
+
+Plain-language explanations
+
+Smart delay countdown
+
+Cooling-off rules for new users
+
+Extra confirmation if needed
+
+Still before PIN.
+
+
+
+
+1️⃣ USER PROFILE & HISTORY STORE
+
+👉 This is your memory.
+👉 Without this, there is no personalization.
+
+Think of it as a per-user behavioral snapshot.
+
+🔹 A. BASIC USER METADATA (Static / Slowly Changing)
+
+You store this once and update occasionally.
+
+| Field                               | Why it matters          |
+| ----------------------------------- | ----------------------- |
+| `user_id`                           | Unique identifier       |
+| `account_age_days`                  | New users are high-risk |
+| `total_transactions`                | Experience level        |
+| `first_transaction_date`            | Maturity check          |
+| `last_transaction_date`             | Activity pattern        |
+| `user_type` (new / regular / heavy) | Adaptive thresholds     |
+
+
+🔹 B. TRANSACTION BEHAVIOR STATISTICS (Very Important)
+
+| Field                         | Explanation             |
+| ----------------------------- | ----------------------- |
+| `avg_transaction_amount`      | Baseline behavior       |
+| `median_transaction_amount`   | Robust against outliers |
+| `max_transaction_amount`      | Upper comfort limit     |
+| `std_dev_amount`              | Volatility in spending  |
+| `transactions_per_day_avg`    | Normal frequency        |
+| `transactions_per_week_avg`   | Pattern stability       |
+| `preferred_transaction_hours` | Time-of-day habits      |
+
+
+PHASED EXECUTION PLAN (REALISTIC TIMELINE)
+🔹 PHASE 0 — Contract Lock (Day 1)
+
+All 4 together
+
+Finalize:
+
+API endpoints
+
+Feature vector schema
+
+Risk levels
+
+No coding yet
+
+🚫 If this phase is skipped → project collapses
+
+🔹 PHASE 1 — Backend Spine (Days 2–4)
+
+Person 1
+
+API Gateway
+
+MongoDB models
+
+Redis setup
+
+Stub ML responses
+
+Person 2
+
+Feature extraction logic
+
+Rule definitions
+
+🔹 PHASE 2 — ML & Rule Engine (Days 5–7)
+
+Person 2 (owner)
+
+Synthetic data generation
+
+Isolation Forest training
+
+Inference API
+
+Person 1
+
+Integrate inference
+
+Risk decision logic
+
+🔹 PHASE 3 — Frontend & Signals (Days 6–8)
+
+Person 3
+
+UI flows
+
+Intent selection
+
+Warning screens
+
+Person 4
+
+Behavioral signal logic
+
+Hesitation & edit simulation
+
+🔹 PHASE 4 — Integration & Demo (Days 9–11)
+
+Everyone
+
+End-to-end tests
+
+Demo scenarios:
+
+Normal payment
+
+Refund scam
+
+QR scam
+
+Impersonation scam
+
+🔹 PHASE 5 — Polish & Defense (Days 12–13)
+
+Person 4
+
+Metrics
+
+Failure cases
+
+Person 1
+
+Architecture explanation
+
+Flow walkthrough
+
+
+Now Phase 0 Meeting :
+
+Goal of this meeting:
+👉 Agree on what data moves between components, not how it’s coded.
+
+Rule:
+If something is unclear at the end of this meeting, coding is not allowed to start.
+
+🧩 Step 1: Clarify the SYSTEM QUESTION (5 minutes)
+
+Divesh asks:
+
+“Before we define APIs — what is the ONE question our backend must answer?”
+
+Everyone agrees:
+
+“Given a transaction intent, how risky is it for this user right now?”
+
+If someone says “detect fraud” → stop them. That’s wrong.
+
+🧩 Step 2: Identify the ONLY 3 SYSTEM ACTIONS (10 minutes)
+
+Divesh says:
+
+“What are the minimum actions the system must support?”
+
+After discussion, you lock exactly three.
+
+Action 1: Submit Transaction Intent
+
+User has entered amount + payee but not PIN.
+
+Action 2: Get Risk Decision
+
+Backend decides allow / warn / delay.
+
+Action 3: Send User Feedback
+
+User either proceeds or cancels after warning.
+
+🚨 If someone proposes a 4th action → ask why.
+90% of the time it’s unnecessary.
+
+🧩 Step 3: Define API #1 — Transaction Intent (15 minutes)
+
+Kushal (frontend) asks:
+
+“What exactly do I send to backend?”
+
+Discussion Outcome (LOCKED)
+
+Endpoint
+
+POST /transaction/intent
+
+
+Frontend MUST send
+
+user_id
+
+amount
+
+payee_id
+
+intent_type (refund / receive / purchase / support)
+
+behavioral_signals:
+
+hesitation_time_ms
+
+amount_edit_count
+
+confirmation_delay_ms
+
+Backend responds
+
+transaction_id
+
+status = RECEIVED
+
+📌 Important agreement:
+
+Frontend does NOT compute risk
+
+Backend does NOT guess intent
+
+🧩 Step 4: Define API #2 — Risk Decision (15 minutes)
+
+Kalpesh asks:
+
+“When do I run ML and how does backend use it?”
+
+Discussion Outcome (LOCKED)
+
+Endpoint
+
+POST /transaction/decision
+
+
+Backend internally does
+
+Feature extraction
+
+ML inference
+
+Rule amplification
+
+Response sent to frontend
+
+risk_level: LOW | MEDIUM | HIGH
+
+action: ALLOW | WARN | DELAY
+
+reason_codes:
+
+new_payee
+
+amount_spike
+
+intent_mismatch
+
+unusual_time
+
+hesitation_detected
+
+📌 Critical agreement:
+
+ML returns only anomaly_score
+
+Backend converts score → decision
+
+Frontend only renders UI
+
+🧩 Step 5: Define API #3 — User Feedback (10 minutes)
+
+Kumar asks:
+
+“How does the system learn from user actions?”
+
+Discussion Outcome (LOCKED)
+
+Endpoint
+
+POST /transaction/feedback
+
+
+Frontend sends
+
+transaction_id
+
+user_action: PROCEEDED | CANCELLED
+
+Backend uses this to
+
+Update user behavior profile
+
+Adjust sensitivity
+
+Track ignored warnings
+
+📌 Agreement:
+
+Learning is incremental
+
+No retraining in real time
+
+🧩 Step 6: Lock Risk Definitions (10 minutes)
+
+Divesh asks:
+
+“What does LOW, MEDIUM, HIGH actually mean?”
+
+LOCKED DEFINITIONS
+
+LOW
+
+Transaction within normal behavior
+
+No UI friction
+
+MEDIUM
+
+Slight deviation
+
+Show warning only
+
+HIGH
+
+Strong deviation
+
+Delay + intent confirmation
+
+🚫 No blocking.
+🚫 No fraud labels.
+
+🧩 Step 7: What is EXPLICITLY OUT OF SCOPE (5 minutes)
+
+Everyone agrees to write this down:
+
+❌ Real UPI / NPCI integration
+
+❌ Real user data
+
+❌ Fraud classification models
+
+❌ Auto-blocking transactions
+
+This protects the team later.
+
+✅ Phase 0 Exit Criteria (VERY IMPORTANT)
+
+Phase 0 is considered DONE only if:
+
+✔ All 3 endpoints are defined
+✔ Request & response fields are written
+✔ Risk level meanings are agreed
+✔ Everyone confirms “I know what to build”
+
+If even one person is unsure → Phase 0 FAILED.
+
+
+
+1️⃣ LIST OF API ENDPOINTS
+
+POST /transaction/intent
+
+POST /transaction/decision
+
+POST /transaction/feedback
+
+No other endpoints are required for MVP.
+
+2️⃣ API ENDPOINT DETAILS
+🔹 Endpoint 1: Submit Transaction Intent
+
+Purpose
+Capture transaction intent and behavioral signals before PIN entry.
+
+Method
+POST
+
+Path
+/transaction/intent
+
+Request JSON
+{
+  "user_id": "string",
+  "amount": 5000,
+  "payee_id": "string",
+  "intent_type": "refund | receive | purchase | support",
+  "behavioral_signals": {
+    "hesitation_time_ms": 1800,
+    "amount_edit_count": 2,
+    "confirmation_delay_ms": 3200
+  }
+}
+
+Response JSON
+{
+  "transaction_id": "string",
+  "status": "RECEIVED"
+}
+
+🔹 Endpoint 2: Get Risk Decision
+
+Purpose
+Determine risk level and required user intervention.
+
+Method
+POST
+
+Path
+/transaction/decision
+
+Request JSON
+{
+  "transaction_id": "string"
+}
+
+Response JSON
+{
+  "risk_level": "LOW | MEDIUM | HIGH",
+  "action": "ALLOW | WARN | DELAY",
+  "reason_codes": [
+    "new_payee",
+    "amount_spike",
+    "intent_mismatch",
+    "unusual_time",
+    "hesitation_detected"
+  ]
+}
+
+🔹 Endpoint 3: User Feedback
+
+Purpose
+Capture user action after warning or delay for adaptive learning.
+
+Method
+POST
+
+Path
+/transaction/feedback
+
+Request JSON
+{
+  "transaction_id": "string",
+  "user_action": "PROCEEDED | CANCELLED"
+}
+
+Response JSON
+{
+  "status": "ACKNOWLEDGED"
+}
+
+3️⃣ FEATURE VECTOR FIELDS LIST
+
+(Used internally for ML inference)
+
+Each transaction is converted into the following behavioral feature vector:
+
+Feature Name	Description
+amount_ratio	amount / user_avg_amount
+amount_zscore	deviation from user mean
+is_new_payee	whether payee is unseen
+payee_trust_score	relationship strength (0–1)
+payee_payment_count	past payments to payee
+txn_frequency_recent	recent txns vs baseline
+velocity_spike	sudden frequency increase
+time_deviation_score	deviation from usual hours
+is_unusual_hour	outside preferred window
+confirmation_time_ratio	confirm time vs baseline
+hesitation_score	pause & edit-based signal
+amount_edit_count_ratio	edits vs normal
+intent_risk_score	inherent intent risk
+intent_direction_mismatch	intent vs txn direction
+user_maturity_flag	new / regular / heavy
+cooling_off_active	protection state
+recent_warning_ignored	ignored previous warning
+device_change_flag	new device detected
+
+ML outputs:
+
+{
+  "anomaly_score": 0.0 – 1.0
+}
+
+4️⃣ RISK LEVEL DEFINITIONS (LOCKED)
+🟢 LOW RISK
+
+Transaction matches normal user behavior
+
+No unusual context detected
+
+Action: Allow silently
+
+🟡 MEDIUM RISK
+
+Mild behavioral deviation detected
+
+Some risk signals present
+
+Action: Show warning, allow continuation
+
+🔴 HIGH RISK
+
+Strong behavioral deviation
+
+Multiple high-risk signals
+
+Action: Delay transaction and require intent confirmation
+
+5️⃣ OUT-OF-SCOPE (EXPLICIT)
+
+No real UPI / NPCI integration
+
+No real user data
+
+No fraud classification models
+
+No permanent blocking
+
+
+
+

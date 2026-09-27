@@ -1,0 +1,56 @@
+{
+  "overall_status": "HEALTHY",
+  "overall_drift_score": 0.0062,
+  "drifted_features_count": 0,
+  "features_monitored_count": 6,
+  "thresholds": {
+    "psi_warning": 0.1,
+    "psi_alert": 0.25,
+    "ks_p_value": 0.05,
+    "wasserstein": 0.2
+  },
+  "features": {
+    "amount": {
+      "psi": 0.0127,
+      "ks_statistic": 0.0261,
+      "ks_p_value": 0.46474,
+      "wasserstein_distance": 0.0207,
+      "status": "STABLE"
+    },
+    "transaction_velocity": {
+      "psi": 0.0027,
+      "ks_statistic": 0.0108,
+      "ks_p_value": 0.99964,
+      "wasserstein_distance": 0.0221,
+      "status": "STABLE"
+    },
+    "payee_trust_score": {
+      "psi": 0.0096,
+      "ks_statistic": 0.0244,
+      "ks_p_value": 0.55259,
+      "wasserstein_distance": 0.026,
+      "status": "STABLE"
+    },
+    "amount_deviation": {
+      "psi": 0.0048,
+      "ks_statistic": 0.0165,
+      "ks_p_value": 0.93376,
+      "wasserstein_distance": 0.0139,
+      "status": "STABLE"
+    },
+    "hesitation_score": {
+      "psi": 0.0064,
+      "ks_statistic": 0.0216,
+      "ks_p_value": 0.70237,
+      "wasserstein_distance": 0.0283,
+      "status": "STABLE"
+    },
+    "edit_count": {
+      "psi": 0.0008,
+      "ks_statistic": 0.013,
+      "ks_p_value": 0.99373,
+      "wasserstein_distance": 0.0299,
+      "status": "STABLE"
+    }
+  }
+}

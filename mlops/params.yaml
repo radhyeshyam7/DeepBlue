@@ -1,0 +1,50 @@
+base:
+  project_name: "DeepBlue4-SaarthiAI"
+  random_seed: 42
+  environment: "development"
+
+data:
+  raw_path: "mlops/data/raw/transactions_raw.csv"
+  processed_path: "mlops/data/processed/transactions_processed.csv"
+  train_features_path: "mlops/data/features/features_train.csv"
+  test_features_path: "mlops/data/features/features_test.csv"
+  scaler_path: "mlops/data/features/scaler.joblib"
+  reference_data_path: "mlops/data/processed/reference_data.csv"
+  current_data_path: "mlops/data/processed/current_batch.csv"
+  n_samples: 5000
+  test_size: 0.2
+  fraud_rate: 0.08
+
+model:
+  name: "FraudDetectionModel"
+  algorithm: "IsolationForest"
+  n_estimators: 150
+  contamination: 0.08
+  max_samples: "auto"
+  random_state: 42
+  model_dir: "mlops/artifacts"
+  model_path: "mlops/artifacts/isolation_forest.joblib"
+
+mlflow:
+  experiment_name: "UPI_Fraud_Detection"
+  tracking_uri: "sqlite:///mlops/mlflow.db"
+  artifact_location: "./mlops/mlruns"
+  registered_model_name: "FraudDetectionModel"
+
+quality_gate:
+  min_f1_score: 0.70
+  max_false_positive_rate: 0.15
+  min_recall: 0.70
+
+drift:
+  psi_warning_threshold: 0.10
+  psi_alert_threshold: 0.25
+  ks_p_value_threshold: 0.05
+  wasserstein_threshold: 0.20
+  features_to_monitor:
+    - "amount"
+    - "transaction_velocity"
+    - "payee_trust_score"
+    - "amount_deviation"
+    - "hesitation_score"
+    - "edit_count"

@@ -1,0 +1,67 @@
+{
+  "pipeline_name": "DeepBlue4_SaarthiAI_MLOps",
+  "start_time": "2026-09-26T06:45:09.638245",
+  "stages": {
+    "ingestion": {
+      "status": "PASS",
+      "duration_seconds": 0.214,
+      "output_file": "mlops/data/raw/transactions_raw.csv"
+    },
+    "validation": {
+      "status": "PASS",
+      "duration_seconds": 0.433,
+      "report_file": "mlops/artifacts/validation_report.json"
+    },
+    "preprocessing": {
+      "status": "PASS",
+      "duration_seconds": 0.059,
+      "processed_file": "mlops/data/processed/transactions_processed.csv"
+    },
+    "features": {
+      "status": "PASS",
+      "duration_seconds": 0.092,
+      "train_features": "mlops/data/features/features_train.csv",
+      "test_features": "mlops/data/features/features_test.csv",
+      "scaler_path": "mlops/data/features/scaler.joblib"
+    },
+    "training": {
+      "status": "PASS",
+      "duration_seconds": 6.108,
+      "run_id": "00fdfb7f9bc942ba888a3082c43be341",
+      "model_artifact": "mlops/artifacts/isolation_forest.joblib"
+    },
+    "evaluation": {
+      "status": "PASS",
+      "quality_gate_passed": true,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.9875,
+        "f1_score": 0.9937,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0125,
+        "roc_auc": 1.0,
+        "avg_inference_latency_ms": 1.35,
+        "test_sample_count": 1000,
+        "test_fraud_count": 80,
+        "true_positives": 79,
+        "true_negatives": 920,
+        "false_positives": 0,
+        "false_negatives": 1
+      },
+      "duration_seconds": 0.316
+    },
+    "drift_detection": {
+      "overall_status": "HEALTHY",
+      "overall_drift_score": 0.0062,
+      "duration_seconds": 0.059
+    },
+    "explainability": {
+      "status": "PASS",
+      "sample_shap_top_feature": "amount_deviation",
+      "duration_seconds": 1.439
+    }
+  },
+  "total_duration_seconds": 10.14,
+  "end_time": "2026-09-26T06:45:19.778099",
+  "overall_pipeline_status": "SUCCESS"
+}

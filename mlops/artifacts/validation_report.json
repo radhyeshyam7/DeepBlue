@@ -1,0 +1,9 @@
+{
+  "dataset_path": "mlops/data/raw/transactions_raw.csv",
+  "total_records": 5000,
+  "total_columns": 15,
+  "missing_values": 0,
+  "duplicate_rows": 0,
+  "status": "PASS",
+  "errors": []
+}

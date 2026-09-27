@@ -1,0 +1,18 @@
+algorithm: IsolationForest
+feature_names:
+- amount_ratio
+- amount_deviation
+- is_new_payee
+- payee_trust_score
+- transaction_velocity
+- velocity_spike
+- time_deviation_score
+- is_unusual_hour
+- hesitation_score
+- edit_count
+- intent_mismatch_score
+- vulnerability_score
+- payee_risk_factor
+- behavioral_composite_score
+model_path: mlops/artifacts/isolation_forest.joblib
+run_id: 625e66b703034316b32272733b8ec0f0

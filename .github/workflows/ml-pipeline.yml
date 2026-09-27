@@ -1,0 +1,51 @@
+name: Automated ML Pipeline & Validation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly automated validation run
+
+jobs:
+  ml-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Data Ingestion & Pandera Validation
+        run: |
+          python -m mlops.ingestion.ingest
+          python -m mlops.validation.validate
+
+      - name: Run Preprocessing & Feature Engineering
+        run: |
+          python -m mlops.preprocessing.preprocess
+          python -m mlops.features.build_features
+
+      - name: Run Unsupervised Training & Quality Gate Evaluation
+        run: |
+          python -m mlops.training.train
+          python -m mlops.evaluation.evaluate
+
+      - name: Run Drift Detection & Explainability Verification
+        run: |
+          python -m mlops.monitoring.drift
+          python -m mlops.explainability.shap_explainer
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlops-evaluation-report
+          path: mlops/artifacts/

@@ -1,0 +1,208 @@
+version: "3.8"
+
+# ==============================================================================
+# DeepBlue4 / Saarthi AI - 100% Free & Open-Source MLOps Infrastructure
+# 
+# Database Role Separation:
+# - MongoDB: DeepBlue4 application data (Users, Transactions, PayeeRelationships)
+# - Redis: Application cache, velocity counters, and delayed transactions
+# - PostgreSQL: Airflow internal metadata ONLY (Not used by application)
+# - SQLite: MLflow metadata store (mlops/mlflow.db)
+# ==============================================================================
+
+networks:
+  saarthi-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:
+  mlflow_data:
+  prometheus_data:
+  grafana_data:
+  airflow_postgres_data:
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Core Application Databases
+  # ----------------------------------------------------------------------------
+  mongodb:
+    image: mongo:6.0
+    container_name: saarthi-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - saarthi-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: saarthi-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - saarthi-network
+
+  # ----------------------------------------------------------------------------
+  # 2. MLflow Experiment Tracking & Model Registry
+  # ----------------------------------------------------------------------------
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.14.1
+    container_name: saarthi-mlflow
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlops:/workspace/mlops
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:////workspace/mlops/mlflow.db
+      --default-artifact-root /workspace/mlops/mlruns
+      --host 0.0.0.0
+      --port 5000
+    networks:
+      - saarthi-network
+
+  # ----------------------------------------------------------------------------
+  # 3. FastAPI ML Inference Service
+  # ----------------------------------------------------------------------------
+  ml_service:
+    build:
+      context: .
+      dockerfile: ./ml_service/Dockerfile
+    container_name: saarthi-ml-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=production
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ./mlops/artifacts:/workspace/mlops/artifacts:ro
+      - ./mlops/data/features:/workspace/mlops/data/features:ro
+    depends_on:
+      - mlflow
+    networks:
+      - saarthi-network
+
+  # ----------------------------------------------------------------------------
+  # 4. Node.js Express Backend
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: saarthi-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/DEEP_BLUE
+      - REDIS_URL=redis://redis:6379
+      - FASTAPI_ML_URL=http://ml_service:8001
+      - SMS_ENABLED=false
+    depends_on:
+      - mongodb
+      - redis
+      - ml_service
+    networks:
+      - saarthi-network
+
+  # ----------------------------------------------------------------------------
+  # 5. Monitoring & Observability (Prometheus & Grafana OSS)
+  # ----------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: saarthi-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    networks:
+      - saarthi-network
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: saarthi-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - saarthi-network
+
+  # ----------------------------------------------------------------------------
+  # 6. Apache Airflow Orchestration (Optional Profile: --profile airflow)
+  # ----------------------------------------------------------------------------
+  postgres-airflow:
+    image: postgres:15-alpine
+    container_name: saarthi-airflow-postgres
+    profiles: ["airflow"]
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow_metadata
+    volumes:
+      - airflow_postgres_data:/var/lib/postgresql/data
+    networks:
+      - saarthi-network
+
+  airflow-webserver:
+    image: apache/airflow:2.9.2
+    container_name: saarthi-airflow-webserver
+    profiles: ["airflow"]
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow_metadata
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./mlops/dags:/opt/airflow/dags
+      - ./mlops:/opt/airflow/mlops
+    depends_on:
+      - postgres-airflow
+    command: webserver
+    networks:
+      - saarthi-network
+
+  airflow-scheduler:
+    image: apache/airflow:2.9.2
+    container_name: saarthi-airflow-scheduler
+    profiles: ["airflow"]
+    restart: unless-stopped
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow_metadata
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./mlops/dags:/opt/airflow/dags
+      - ./mlops:/opt/airflow/mlops
+    depends_on:
+      - postgres-airflow
+    command: scheduler
+    networks:
+      - saarthi-network

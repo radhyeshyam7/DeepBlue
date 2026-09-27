@@ -1,0 +1,13 @@
+# Prometheus Monitoring Configuration for DeepBlue4 / Saarthi AI
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "fastapi_ml_service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["127.0.0.1:8001"]
+        labels:
+          service: "fraud-ml-service"
+          environment: "production"

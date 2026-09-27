@@ -1,0 +1,65 @@
+stages:
+  ingest:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.ingestion.ingest
+    deps:
+      - mlops/ingestion/ingest.py
+      - mlops/params.yaml
+    outs:
+      - mlops/data/raw/transactions_raw.csv:
+          cache: true
+
+  validate:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.validation.validate
+    deps:
+      - mlops/data/raw/transactions_raw.csv
+      - mlops/validation/validate.py
+      - mlops/params.yaml
+
+  preprocess:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.preprocessing.preprocess
+    deps:
+      - mlops/data/raw/transactions_raw.csv
+      - mlops/preprocessing/preprocess.py
+      - mlops/params.yaml
+    outs:
+      - mlops/data/processed/transactions_processed.csv:
+          cache: true
+
+  build_features:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.features.build_features
+    deps:
+      - mlops/data/processed/transactions_processed.csv
+      - mlops/features/build_features.py
+      - mlops/params.yaml
+    outs:
+      - mlops/data/features/features_train.csv:
+          cache: true
+      - mlops/data/features/features_test.csv:
+          cache: true
+      - mlops/data/features/scaler.joblib:
+          cache: true
+
+  train:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.training.train
+    deps:
+      - mlops/data/features/features_train.csv
+      - mlops/training/train.py
+      - mlops/params.yaml
+    params:
+      - model.n_estimators
+      - model.contamination
+      - model.random_state
+    outs:
+      - mlops/artifacts/isolation_forest.joblib:
+          cache: true
+
+  evaluate:
+    cmd: venv_mlops\Scripts\python.exe -m mlops.evaluation.evaluate
+    deps:
+      - mlops/artifacts/isolation_forest.joblib
+      - mlops/data/features/features_test.csv
+      - mlops/evaluation/evaluate.py
+      - mlops/params.yaml
+    metrics:
+      - mlops/artifacts/evaluation_metrics.json:
+          cache: false
