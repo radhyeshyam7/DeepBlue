@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEEPBLUE AI: Real-Time Behavioral MLOps Platform for UPI Fraud Prevention</title>
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --card-bg: #11192d;
+      --card-border: #1e293b;
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.25);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: rgba(17, 25, 45, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--card-border);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      border-color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+
+    /* Presentation Main Viewport */
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 60px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 1300px;
+      margin: 0 auto;
+      right: 0;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .slide-tag {
+      color: var(--primary);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card.glow-primary {
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 24px var(--primary-glow);
+    }
+
+    .card.glow-success {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 24px rgba(16, 185, 129, 0.2);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    ul.feature-list {
+      list-style: none;
+    }
+
+    ul.feature-list li {
+      margin-bottom: 12px;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    ul.feature-list li::before {
+      content: "▹";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Metric Badges */
+    .metric-box {
+      text-align: center;
+      padding: 16px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+    }
+
+    .metric-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Code & Architecture Block */
+    pre.code-block {
+      background: #060913;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    table.data-table th {
+      background: rgba(30, 41, 59, 0.6);
+      color: var(--primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+    }
+
+    table.data-table td {
+      color: #cbd5e1;
+    }
+
+    /* Footer & Progress */
+    footer {
+      background: rgba(17, 25, 45, 0.95);
+      border-top: 1px solid var(--card-border);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      transition: width 0.3s ease;
+      width: 10%;
+    }
+
+    /* Speaker Notes Drawer */
+    #speaker-notes-drawer {
+      position: fixed;
+      bottom: 45px;
+      right: 20px;
+      width: 480px;
+      max-height: 280px;
+      background: #0f172a;
+      border: 1px solid #38bdf8;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      display: none;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    #speaker-notes-drawer.open {
+      display: block;
+    }
+
+    .notes-title {
+      font-size: 0.85rem;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notes-content {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span>🛡️ DEEPBLUE AI</span>
+      <span class="brand-badge">Enterprise MLOps</span>
+      <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: normal;">| UPI Fraud Prevention</span>
+    </div>
+    <div class="nav-controls">
+      <button class="btn" onclick="toggleSpeakerNotes()">🎙️ Notes (S)</button>
+      <button class="btn" onclick="toggleFullScreen()">⛶ Fullscreen (F)</button>
+      <button class="btn" onclick="prevSlide()">← Prev</button>
+      <span id="slide-indicator" style="font-size: 0.85rem; color: var(--primary); font-weight: 600; min-width: 50px; text-align: center;">1 / 10</span>
+      <button class="btn btn-primary" onclick="nextSlide()">Next →</button>
+    </div>
+  </header>
+
+  <!-- Main Slide Viewport -->
+  <main>
+    <div class="progress-bar" id="progress-bar"></div>
+
+    <!-- Slide 1: Title -->
+    <div class="slide active" data-notes="Good morning. Today I present DEEPBLUE AI, an end-to-end, behavioral MLOps platform engineered to solve real-time social engineering fraud in India's Unified Payments Interface (UPI). We intercept scam transactions in under 15 milliseconds prior to debit authorization.">
+      <div class="slide-tag">Project Defense & Technical Walkthrough</div>
+      <h1 class="slide-title">DEEPBLUE AI: Real-Time Behavioral MLOps Platform for UPI Fraud Prevention</h1>
+      <div class="grid-3" style="margin-top: 20px;">
+        <div class="card glow-primary">
+          <div class="card-title">🚨 The Threat Vector</div>
+          <p class="card-text">Over 14 billion monthly UPI transactions settle irreversibly in milliseconds. Fraudsters exploit human trust rather than breaking cryptography, bypassing traditional perimeter defenses.</p>
+        </div>
+        <div class="card glow-primary">
+          <div class="card-title">🧠 Behavioral Anomaly Engine</div>
+          <p class="card-text">Combines dynamic user baseline profiling, rolling transaction velocity, and real-time interaction biometrics (hesitation & edit frequency) via unsupervised Isolation Forest.</p>
+        </div>
+        <div class="card glow-primary">
+          <div class="card-title">⚙️ 100% Open-Source MLOps</div>
+          <p class="card-text">Built with zero proprietary cloud lock-in. Powered by Apache Airflow, MLflow, DVC, Pandera, FastAPI, Prometheus, and Grafana OSS.</p>
+        </div>
+      </div>
+      <div style="margin-top: 30px; display: flex; gap: 20px; align-items: center; color: var(--text-muted); font-size: 0.9rem;">
+        <span><strong>Author:</strong> Radhyeshyam Lahoti</span>
+        <span>•</span>
+        <span><strong>Lab:</strong> Advanced Fintech Systems & MLOps</span>
+        <span>•</span>
+        <span><strong>GitHub:</strong> <a href="https://github.com/radhyeshyam7/DeepBlue" target="_blank" style="color: var(--primary); text-decoration: none;">github.com/radhyeshyam7/DeepBlue</a></span>
+      </div>
+    </div>
+
+    <!-- Slide 2: Problem Statement -->
+    <div class="slide" data-notes="In credit card payments, a 48-hour dispute window allows chargebacks. In UPI, funds settle irrevocably in sub-second time. Fraud syndicates exploit urgency and authority to coerce users into voluntarily typing their UPI PIN. Device bindings and SMS OTPs are completely blind to this.">
+      <div class="slide-tag">Chapter 1: The Vulnerability Landscape</div>
+      <h2 class="slide-title">Why Existing Perimeter Defenses Fail Against UPI Scams</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">⚡ Instant Push Settlement Vulnerability</div>
+          <ul class="feature-list">
+            <li><strong>Immediate Finality:</strong> Funds move between central bank accounts in under 1,000ms with zero post-debit chargeback window.</li>
+            <li><strong>Perimeter Blind Spot:</strong> Because the victim types their legitimate UPI PIN, device binding, SMS OTP, and biometric sensors treat the transfer as 100% authorized.</li>
+            <li><strong>Mule Velocity:</strong> Funds are cascaded through layered mule accounts and liquidated via ATMs within 5 to 10 minutes.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🎭 The 4 Primary Scam Archetypes</div>
+          <ul class="feature-list">
+            <li><strong>Electricity Disconnection Urgency:</strong> Threatening immediate blackout at 9:30 PM unless a bill is transferred to a scammer's VPA.</li>
+            <li><strong>Authority Impersonation:</strong> Posing as police officers, tax agents, or bank fraud managers to coerce verification debits.</li>
+            <li><strong>Cognitive Inversion:</strong> Sending collect requests or reverse QR codes, claiming entering a PIN is needed to 'receive' money.</li>
+            <li><strong>Cognitive Duress:</strong> Victims exhibit anomalous hesitation, multiple amount edits, and nocturnal transaction timing.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: System Topology -->
+    <div class="slide" data-notes="Here is our decoupled microservice topology. The React client captures behavioral telemetry. Node.js enriches user 30-day baselines from MongoDB and hourly velocity from Redis. FastAPI computes Isolation Forest and SHAP scores in 14.5ms, and Prometheus scrapes metrics for Grafana.">
+      <div class="slide-tag">Chapter 2: Architecture & Topology</div>
+      <h2 class="slide-title">Decoupled Microservice Topology</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🖥️ Service Distribution</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Service</th><th>Port</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>React Web Client</td><td>:5173</td><td>UPI Simulator & Behavioral Telemetry</td></tr>
+              <tr><td>Fraud Operations</td><td>:5173/admin</td><td>Flagged Queue & Investigator Admin</td></tr>
+              <tr><td>Node.js API Gateway</td><td>:3000</td><td>Payment State Machine & Redis Velocity</td></tr>
+              <tr><td>FastAPI ML Engine</td><td>:8001</td><td>Sub-15ms Scoring & SHAP/LIME XAI</td></tr>
+              <tr><td>Airflow & MLflow</td><td>:8080 / :5000</td><td>Automated Retraining & SQLite Registry</td></tr>
+              <tr><td>Prometheus & Grafana</td><td>:9090 / :3001</td><td>Time-Series Telemetry & 6-Panel Ops</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">🔄 Real-Time Request Flow</div>
+          <pre class="code-block">
+[React Client] 
+   | (Amount + Payee + Hesitation + Edits)
+   v
+[Node.js Gateway] 
+   | (Enriches 30-day μ, σ, & 1h Velocity)
+   v
+[FastAPI ML Service (/predict)]
+   |-- Pandera Contract Check
+   |-- StandardScaler Transform
+   |-- Isolation Forest Inference (1.35ms)
+   |-- TreeSHAP Attribution Computation
+   +-- Fraud Reason Engine
+   v
+[Decision Output] -> ALLOW (0-30) | WARN (31-70) | DELAY (71-100)
+          </pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Behavioral Biometrics & Feature Engineering -->
+    <div class="slide" data-notes="We evaluate transactions relative to personal user baselines rather than static system-wide limits. A ten thousand rupee payment is normal for a business but anomalous for a student. We also capture client hesitation and input edit counts to detect when a victim is being coached over a phone call.">
+      <div class="slide-tag">Chapter 3: Feature Engineering</div>
+      <h2 class="slide-title">Dynamic Baselines & Interaction Biometrics</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">📊 User-Relative Baselines</div>
+          <p class="card-text"><strong>Amount Deviation:</strong> Ratio $A_i / \mu_u$ comparing transaction amount against the user's 30-day spending mean.<br><br><strong>Statistical Z-Score:</strong> Measuring standard deviations $(A_i - \mu_u) / \sigma_u$ to adapt dynamically to high-wealth vs student accounts.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">⏱️ Temporal & Velocity Profiling</div>
+          <p class="card-text"><strong>Hourly Burst Velocity:</strong> Rolling 60-minute window tracked in Redis to intercept rapid retry attacks.<br><br><strong>Diurnal Hour & Day:</strong> Flagging high-risk nocturnal transactions (1:00 AM - 4:00 AM) typical of social engineering scams.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🎯 Client Interaction Biometrics</div>
+          <p class="card-text"><strong>Hesitation Score ($\tau_{\text{hes}}$):</strong> Temporal delay between entering the amount and confirming the payment.<br><br><strong>Edit Count ($C_{\text{edit}}$):</strong> Number of backspaces and corrections in the input field while being guided by a scammer.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Isolation Forest Anomaly Detection -->
+    <div class="slide" data-notes="Isolation Forest is an unsupervised algorithm that isolates anomalies by random partitioning. Because fraudulent transactions have extreme baseline deviations, they isolate very close to the tree roots with small path lengths. We scale this into a 0-to-100 risk score.">
+      <div class="slide-tag">Chapter 4: Core Machine Learning Engine</div>
+      <h2 class="slide-title">Unsupervised Isolation Forest Anomaly Scoring</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🌲 The Mathematical Principle</div>
+          <p class="card-text">Anomalies are "few and different"—they isolate near the tree roots with short path lengths $h(\mathbf{x})$.</p>
+          <div style="background: rgba(15,23,42,0.6); padding: 12px; border-radius: 8px; margin: 12px 0; font-family: monospace; font-size: 0.9rem; color: var(--primary);">
+            s(x, n) = 2^(- E[h(x)] / c(n))
+          </div>
+          <ul class="feature-list">
+            <li><strong>Zero-Day Protection:</strong> Requires no historical fraud labels, detecting newly minted scam narratives immediately.</li>
+            <li><strong>100 Estimators:</strong> Robust ensemble averaging across orthogonal hyperplanes.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🚦 Calibrated Risk Tiers</div>
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+            <div style="background: rgba(16,185,129,0.15); border-left: 4px solid var(--success); padding: 10px 14px; border-radius: 4px;">
+              <strong style="color: var(--success);">Score 0 – 30: LOW (ALLOW)</strong>
+              <div style="font-size: 0.85rem; color: #cbd5e1;">Instant frictionless authorization for nominal everyday payments.</div>
+            </div>
+            <div style="background: rgba(245,158,11,0.15); border-left: 4px solid var(--warning); padding: 10px 14px; border-radius: 4px;">
+              <strong style="color: var(--warning);">Score 31 – 70: MEDIUM (WARN)</strong>
+              <div style="font-size: 0.85rem; color: #cbd5e1;">In-app modal displaying explainable fraud warnings with user acknowledgment.</div>
+            </div>
+            <div style="background: rgba(239,68,68,0.15); border-left: 4px solid var(--danger); padding: 10px 14px; border-radius: 4px;">
+              <strong style="color: var(--danger);">Score 71 – 100: HIGH (DELAY)</strong>
+              <div style="font-size: 0.85rem; color: #cbd5e1;">Payment withheld; cooling-off delay enforced, secondary verification required.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Explainable AI -->
+    <div class="slide" data-notes="We avoid black-box decisions by implementing TreeSHAP and LIME. Crucially, our Natural Language Fraud Reason Engine converts numerical Shapley tensors into plain-language warnings so victims understand immediately why their payment is held.">
+      <div class="slide-tag">Chapter 5: Transparency & Explainability</div>
+      <h2 class="slide-title">Dual-Layer XAI & Natural Language Reason Engine</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🔍 TreeSHAP & LIME Surrogates</div>
+          <ul class="feature-list">
+            <li><strong>Exact Shapley Contributions:</strong> TreeSHAP allocates game-theoretic additive importances $\phi_j(\mathbf{x})$ across feature dimensions.</li>
+            <li><strong>LIME Verification:</strong> Fits local linear surrogate boundaries around transaction perturbations to guarantee decision robustness.</li>
+            <li><strong>Inference Optimization:</strong> Pre-compiled background distribution enables sub-10ms SHAP value extraction.</li>
+          </ul>
+        </div>
+        <div class="card glow-primary">
+          <div class="card-title">💬 Natural Language Output (Generated in Real-Time)</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="background: rgba(15,23,42,0.8); border: 1px solid var(--card-border); padding: 10px; border-radius: 6px; font-size: 0.88rem; color: #38bdf8;">
+              ✓ "Amount is 10.0x higher than your 30-day baseline average (₹10,000 vs ₹1,000)"
+            </div>
+            <div style="background: rgba(15,23,42,0.8); border: 1px solid var(--card-border); padding: 10px; border-radius: 6px; font-size: 0.88rem; color: #38bdf8;">
+              ✓ "First-time payment to an unverified recipient with critically low trust (0.05)"
+            </div>
+            <div style="background: rgba(15,23,42,0.8); border: 1px solid var(--card-border); padding: 10px; border-radius: 6px; font-size: 0.88rem; color: #38bdf8;">
+              ✓ "Payment initiated at unusual hour (3:00 AM) departing from spending history"
+            </div>
+            <div style="background: rgba(15,23,42,0.8); border: 1px solid var(--card-border); padding: 10px; border-radius: 6px; font-size: 0.88rem; color: #38bdf8;">
+              ✓ "High hesitation detected: amount field edited 5 times before confirmation"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Complete MLOps Lifecycle -->
+    <div class="slide" data-notes="We eliminate cloud licensing fees with a 100% open-source MLOps architecture. DVC provides data reproducibility, Pandera validates schemas, Airflow schedules retraining, and MLflow maintains our model registry.">
+      <div class="slide-tag">Chapter 6: Enterprise Platform Engineering</div>
+      <h2 class="slide-title">100% Free & Open-Source MLOps Lifecycle</h2>
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-title">📦 DVC & Pandera</div>
+          <p class="card-text">Data versioning via `dvc.yaml` guarantees reproducible pipelines (`dvc repro`). Pandera schemas block malformed or out-of-range payloads.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🔄 Apache Airflow</div>
+          <p class="card-text">Automated scheduled DAG orchestration (`fraud_ml_pipeline.py`) executing ingestion, preprocessing, scaling, training, and evaluation.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🧪 MLflow Registry</div>
+          <p class="card-text">SQLite-backed experiment tracking logging model parameters, run IDs, performance metrics, and versioned serialized model joblibs.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Prometheus & Grafana</div>
+          <p class="card-text">Live telemetry scraping `/metrics` to provision a 6-panel real-time visual dashboard tracking latency, score distributions, and drift.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Statistical Drift Telemetry -->
+    <div class="slide" data-notes="Concept and covariate drift are continuously monitored across all 6 behavioral features using Population Stability Index, Kolmogorov-Smirnov test, and Wasserstein distance. Our aggregate drift score is 0.0062, well below the warning threshold.">
+      <div class="slide-tag">Chapter 7: Drift Telemetry</div>
+      <h2 class="slide-title">Multi-Metric Statistical Data Drift Monitoring</h2>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Feature Name</th><th>PSI Score</th><th>KS Statistic</th><th>KS p-value</th><th>Wasserstein</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>amount</code></td><td>0.0127</td><td>0.0261</td><td>0.4647</td><td>0.0207</td><td><span style="color: var(--success); font-weight: 700;">STABLE</span></td></tr>
+            <tr><td><code>transaction_velocity</code></td><td>0.0027</td><td>0.0108</td><td>0.9996</td><td>0.0221</td><td><span style="color: var(--success); font-weight: 700;">STABLE</span></td></tr>
+            <tr><td><code>payee_trust_score</code></td><td>0.0096</td><td>0.0244</td><td>0.5526</td><td>0.0260</td><td><span style="color: var(--success); font-weight: 700;">STABLE</span></td></tr>
+            <tr><td><code>amount_deviation</code></td><td>0.0048</td><td>0.0165</td><td>0.9338</td><td>0.0139</td><td><span style="color: var(--success); font-weight: 700;">STABLE</span></td></tr>
+            <tr><td><code>hesitation_score</code></td><td>0.0064</td><td>0.0216</td><td>0.7024</td><td>0.0283</td><td><span style="color: var(--success); font-weight: 700;">STABLE</span></td></tr>
+            <tr><td><code>edit_count</code></td><td>0.0008</td><td>0.0130</td><td>1.0000</td><td>0.0040</td><td><span style="color: var(--success); font-weight: 700;">STABLE</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top: 14px; padding: 12px; background: rgba(16,185,129,0.1); border: 1px solid var(--success); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--success); font-weight: 700;">SYSTEM DRIFT STATUS: HEALTHY</span>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">Aggregate Drift Score: <strong>0.0062</strong> (Threshold: 0.1000)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Benchmark Results -->
+    <div class="slide" data-notes="On our benchmark of 1,000 transactions containing 80 real attacks, DEEPBLUE AI achieved an F1 of 0.9937, 100% precision, and 98.75% recall. Crucially, False Positive Rate was 0.0%, meaning zero false alarms were raised across 920 legitimate transactions. Model latency is 1.35ms.">
+      <div class="slide-tag">Chapter 8: Empirical Validation</div>
+      <h2 class="slide-title">Empirical Benchmark Scorecard & Quality Gates</h2>
+      <div class="grid-4" style="margin-bottom: 20px;">
+        <div class="metric-box glow-success">
+          <div class="metric-value">0.9937</div>
+          <div class="metric-label">F1-Score (Target: ≥ 0.70)</div>
+        </div>
+        <div class="metric-box glow-success">
+          <div class="metric-value">100.0%</div>
+          <div class="metric-label">Precision (Target: ≥ 85%)</div>
+        </div>
+        <div class="metric-box glow-success">
+          <div class="metric-value">98.75%</div>
+          <div class="metric-label">Recall (79 / 80 Intercepted)</div>
+        </div>
+        <div class="metric-box glow-success">
+          <div class="metric-value">0.00%</div>
+          <div class="metric-label">False Positive Rate (0 / 920)</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">⚡ Latency Profile</div>
+          <ul class="feature-list">
+            <li><strong>Pure Model Inference:</strong> 1.35 ms (Isolation Forest Tree Traversal)</li>
+            <li><strong>FastAPI Round-Trip:</strong> 14.50 ms (Parsing + Scaling + SHAP + Reasons)</li>
+            <li><strong>SLA Compliance:</strong> Easily satisfies sub-50ms bank switch constraints</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🛡️ Quality Gate Evaluation</div>
+          <p class="card-text" style="color: var(--success); font-weight: 600;">Status: PASSED (All Quality Gate Criteria Met)</p>
+          <p class="card-text" style="margin-top: 8px;">Zero legitimate transactions were declined, eliminating customer friction while intercepting 98.75% of fraudulent attacks.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Conclusion & Future Scope -->
+    <div class="slide" data-notes="In conclusion, DEEPBLUE AI proves that zero-false-positive, explainable fraud prevention can be achieved in real time using 100% open-source software. Our future roadmap includes mobile touchscreen biometrics, federated cross-bank learning, and Graph Neural Networks for mule network detection. Thank you.">
+      <div class="slide-tag">Chapter 9: Summary & Future Scope</div>
+      <h2 class="slide-title">Conclusion & Future Roadmap</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">🏆 Delivered Innovations</div>
+          <ul class="feature-list">
+            <li>Pre-authorization behavioral anomaly detection</li>
+            <li>Dual-layer XAI with Natural Language Reason Engine</li>
+            <li>100% free and open-source MLOps architecture</li>
+            <li>Sub-15ms real-time inference with zero false alarms</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🔮 Future Engineering Scope</div>
+          <ul class="feature-list">
+            <li><strong>Mobile Sensor Biometrics:</strong> Gyroscope & micro-tremor capture during PIN entry</li>
+            <li><strong>Federated Cross-Bank Learning:</strong> Sharing intelligence without transmitting customer PII</li>
+            <li><strong>Graph Neural Networks (GNNs):</strong> Real-time mule syndicate topology discovery</li>
+          </ul>
+        </div>
+        <div class="card glow-primary">
+          <div class="card-title">📂 Open-Source Artifacts</div>
+          <p class="card-text">
+            <strong>GitHub:</strong> <a href="https://github.com/radhyeshyam7/DeepBlue" target="_blank" style="color: var(--primary);">github.com/radhyeshyam7/DeepBlue</a><br><br>
+            Includes full source code, Airflow DAGs, MLflow registry, Prometheus configs, Grafana dashboards, research paper, and engineering report.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Speaker Notes Drawer -->
+  <div id="speaker-notes-drawer">
+    <div class="notes-title">
+      <span>🎙️ Speaker Defense Notes</span>
+      <span style="cursor: pointer;" onclick="toggleSpeakerNotes()">✕</span>
+    </div>
+    <div class="notes-content" id="notes-text">
+      Select a slide to view speaker notes.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div>DEEPBLUE AI: Advanced Behavioral MLOps Platform</div>
+    <div>Use Arrow Keys (← / →), Space, or buttons to navigate | [S] Notes | [F] Fullscreen</div>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const indicator = document.getElementById('slide-indicator');
+    const progressBar = document.getElementById('progress-bar');
+    const notesText = document.getElementById('notes-text');
+    const notesDrawer = document.getElementById('speaker-notes-drawer');
+
+    function updateSlide() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentSlide);
+      });
+      indicator.textContent = `${currentSlide + 1} / ${totalSlides}`;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+      
+      const activeSlide = slides[currentSlide];
+      const notes = activeSlide.getAttribute('data-notes') || 'No speaker notes for this slide.';
+      notesText.textContent = notes;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleSpeakerNotes() {
+      notesDrawer.classList.toggle('open');
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key.toLowerCase() === 's') {
+        toggleSpeakerNotes();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullScreen();
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>
