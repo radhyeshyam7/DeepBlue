@@ -97,7 +97,7 @@ export function TransactionFeedbackModal({
                 </div>
                 <h3 className="text-lg font-bold text-white tracking-tight">Was this transaction legitimate?</h3>
                 <p className="text-xs text-blue-200/80 max-w-sm mx-auto">
-                  Help Saarthi AI learn. Your feedback directly trains the unsupervised Isolation Forest and behavioral profile models.
+                  Help DEEPBLUE AI learn. Your feedback directly trains the unsupervised Isolation Forest and behavioral profile models.
                 </p>
                 {amount && payee && (
                   <div

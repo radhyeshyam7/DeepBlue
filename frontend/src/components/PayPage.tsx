@@ -122,7 +122,7 @@ export function PayPage({ onBack, onProceed, onCancel }: PayPageProps) {
               <div>
                 <h2 className="text-xl tracking-wide">Send Money</h2>
                 <p className="text-xs text-blue-300/60 tracking-wide">
-                  Protected by Saarthi AI
+                  Protected by DEEPBLUE AI
                 </p>
               </div>
             </div>

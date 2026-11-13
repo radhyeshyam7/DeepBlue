@@ -331,7 +331,7 @@ export function ProfilePage({ onBack }: ProfilePageProps) {
         </div>
         <p className="text-xs text-blue-200/80 leading-relaxed">
           {role === 'ADMIN'
-            ? 'Active: Fraud Officer Mode. Unlocks Saarthi Fraud Center, system-wide transaction metrics, ML model registry governance, and live inspection.'
+            ? 'Active: Fraud Officer Mode. Unlocks DEEPBLUE Fraud Center, system-wide transaction metrics, ML model registry governance, and live inspection.'
             : 'Active: Normal User Mode. Displays personal baseline behavioral profile, explainable 0–100 risk score, and transaction feedback loop.'}
         </p>
         <div
@@ -679,14 +679,14 @@ export function ProfilePage({ onBack }: ProfilePageProps) {
         )}
       </motion.div>
 
-      {/* Saarthi Protection Status */}
+      {/* DEEPBLUE Protection Status */}
       <motion.div
         className="glass-light rounded-lg p-4 space-y-3"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <h3 className="text-sm tracking-wide">Saarthi Protection</h3>
+        <h3 className="text-sm tracking-wide">DEEPBLUE Protection</h3>
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-blue-300/60 tracking-wide">AI Fraud Detection</span>

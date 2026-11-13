@@ -622,7 +622,7 @@ router.post('/post-feedback', async (req, res) => {
 
 /**
  * GET /transaction/fraud-center/stats
- * Saarthi Fraud Center Operations Dashboard
+ * DEEPBLUE Fraud Center Operations Dashboard
  * Aggregates live transaction KPIs, risk score distributions, feedback and recent suspicious activity
  */
 router.get('/fraud-center/stats', async (req, res) => {

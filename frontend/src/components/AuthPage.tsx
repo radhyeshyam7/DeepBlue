@@ -27,7 +27,7 @@ export function AuthPage() {
   });
 
   // Admin Form data
-  const [adminEmail, setAdminEmail] = useState('admin@saarthi.ai');
+  const [adminEmail, setAdminEmail] = useState('admin@deepblue.ai');
   const [adminKey, setAdminKey] = useState('admin123');
 
   const handleUserLogin = async (e: React.FormEvent) => {
@@ -46,13 +46,13 @@ export function AuthPage() {
 
   const handleQuickUserDemo = async () => {
     setLoading(true);
-    await loginAsUser('user@saarthi.ai', '1234');
+    await loginAsUser('user@deepblue.ai', '1234');
     setLoading(false);
   };
 
   const handleQuickAdminDemo = async () => {
     setLoading(true);
-    await loginAsAdmin('admin@saarthi.ai', 'admin123');
+    await loginAsAdmin('admin@deepblue.ai', 'admin123');
     setLoading(false);
   };
 
@@ -456,7 +456,7 @@ export function AuthPage() {
                           backgroundColor: '#080E1E',
                           border: '1px solid rgba(59, 130, 246, 0.35)',
                         }}
-                        placeholder="admin@saarthi.ai"
+                        placeholder="admin@deepblue.ai"
                         required
                       />
                     </div>

@@ -1,5 +1,5 @@
 """
-Apache Airflow DAG for DeepBlue4 / Saarthi AI Fraud ML Pipeline
+Apache Airflow DAG for DEEPBLUE AI Fraud ML Pipeline
 Orchestrates: Ingest -> Validate -> Preprocess -> Build Features -> Train -> Evaluate -> Quality Gate -> Register Model -> Generate Report
 
 Design:
@@ -123,7 +123,7 @@ def task_stop_pipeline(**kwargs):
 # ------------------------------------------------------------------------------
 
 default_args = {
-    "owner": "saarthi_mlops",
+    "owner": "deepblue_mlops",
     "depends_on_past": False,
     "start_date": datetime(2026, 1, 1),
     "email_on_failure": False,

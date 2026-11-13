@@ -1,6 +1,6 @@
 """
 Pydantic Request & Response Schemas for FastAPI ML Service
-Matches exact contract expected by DeepBlue4 / Saarthi AI Node.js backend.
+Matches exact contract expected by DEEPBLUE AI Node.js backend.
 """
 
 from typing import List, Dict, Optional, Any

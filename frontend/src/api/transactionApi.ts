@@ -472,7 +472,7 @@ export async function submitPostTransactionFeedback(
 }
 
 /**
- * Fetch Saarthi Fraud Center operations dashboard stats
+ * Fetch DEEPBLUE Fraud Center operations dashboard stats
  */
 export async function fetchFraudCenterStats(): Promise<{
   success: boolean;

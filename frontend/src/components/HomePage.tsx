@@ -71,7 +71,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Saarthi AI Header */}
+      {/* DEEPBLUE AI Header */}
       <motion.div
         className="text-center py-10 relative overflow-hidden"
         initial={{ opacity: 0, y: -10 }}
@@ -162,7 +162,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           `}</style>
           
           <h1 style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }} className="font-extrabold tracking-tight mb-6 leading-none">
-            <span className="logo-shine">Saarthi</span>
+            <span className="logo-shine">DEEPBLUE</span>
             {' '}
             <span className="logo-ai">AI</span>
           </h1>
@@ -203,7 +203,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           Welcome back, <span className="text-blue-400">{user?.name || 'User'}</span>
         </h2>
         <p className="text-sm text-blue-300/60 tracking-wide">
-          Your transactions are protected by Saarthi AI
+          Your transactions are protected by DEEPBLUE AI
         </p>
       </div>
 

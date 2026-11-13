@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="DeepBlue4 / Saarthi AI - Real-Time Fraud ML Service",
+    title="DEEPBLUE AI - Real-Time Fraud ML Service",
     description="100% Free & Open-Source MLOps Inference Service for UPI Fraud Prevention",
     version="1.0.0",
     lifespan=lifespan

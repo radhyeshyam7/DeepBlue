@@ -168,7 +168,7 @@ export function SaarthiLogo({ mode = 'idle', size = 64, showText = true }: Saart
       {/* Logo Text */}
       {showText && (
         <div>
-          <h1 className="text-xl tracking-wide">Saarthi</h1>
+          <h1 className="text-xl tracking-wide font-bold">DEEPBLUE</h1>
           <p className="text-xs opacity-60 tracking-wider">
             Transaction Safety Layer
           </p>
@@ -177,3 +177,4 @@ export function SaarthiLogo({ mode = 'idle', size = 64, showText = true }: Saart
     </div>
   );
 }
+export const DeepBlueLogo = SaarthiLogo;

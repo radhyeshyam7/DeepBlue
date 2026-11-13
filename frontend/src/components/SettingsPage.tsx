@@ -296,12 +296,12 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
       <section className="glass rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-3 mb-4">
           <Info className="w-5 h-5 text-blue-400" />
-          <h3 className="text-lg tracking-wide">About Saarthi</h3>
+          <h3 className="text-lg tracking-wide">About DEEPBLUE</h3>
         </div>
 
         <div className="space-y-3 text-sm text-blue-300/70">
           <p>
-            <strong className="text-white">Saarthi</strong> is an intelligent transaction risk analysis system
+            <strong className="text-white">DEEPBLUE</strong> is an intelligent transaction risk analysis system
             designed to protect users through behavioral engineering and ambient intelligence.
           </p>
           <p>
@@ -310,7 +310,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </p>
           <div className="pt-2 text-xs text-blue-300/50">
             <p>Version 1.0.0</p>
-            <p>© 2026 Saarthi Safety Layer</p>
+            <p>© 2026 DEEPBLUE Safety Layer</p>
           </div>
         </div>
       </section>

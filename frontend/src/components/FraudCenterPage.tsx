@@ -81,7 +81,7 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-white">Saarthi Fraud Center</h1>
+              <h1 className="text-xl font-bold tracking-tight text-white">DEEPBLUE Fraud Center</h1>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 border border-blue-400/40 font-mono">
                 LIVE MLOps OPS
               </span>

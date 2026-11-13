@@ -1,7 +1,7 @@
 """
 ML Predictor & Explainability Orchestrator for FastAPI Service
 Handles model loading, feature scaling, inference, risk classification,
-and SHAP / LIME explainability for DeepBlue4 / Saarthi AI.
+and SHAP / LIME explainability for DEEPBLUE AI.
 """
 
 import os

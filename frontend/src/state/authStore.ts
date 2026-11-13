@@ -171,7 +171,7 @@ export const useAuthStore = create<AuthState>()(
             user: {
               id: 'user_demo_' + Date.now().toString(36),
               name: email.split('@')[0] || 'UPI User',
-              email: email || 'user@saarthi.ai',
+              email: email || 'user@deepblue.ai',
               phone: '9876543210',
               accountAge: new Date(),
               usageContext: 'personal',
@@ -187,7 +187,7 @@ export const useAuthStore = create<AuthState>()(
             user: {
               id: 'user_demo_' + Date.now().toString(36),
               name: 'UPI User',
-              email: email || 'user@saarthi.ai',
+              email: email || 'user@deepblue.ai',
               accountAge: new Date(),
               usageContext: 'personal',
               role: 'USER',
@@ -199,7 +199,7 @@ export const useAuthStore = create<AuthState>()(
 
       loginAsAdmin: async (email: string, securityKey: string) => {
         // Authenticate Fraud Operations Officer
-        const adminEmail = email.trim() || 'admin@saarthi.ai';
+        const adminEmail = email.trim() || 'admin@deepblue.ai';
         set({
           isAuthenticated: true,
           role: 'ADMIN',
@@ -238,7 +238,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'saarthi-auth',
+      name: 'deepblue-auth',
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         user: state.user,
