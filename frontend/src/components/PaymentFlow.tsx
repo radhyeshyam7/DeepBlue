@@ -4,7 +4,7 @@ import { useTransactionStore } from '../state/transactionStore';
 import { useAuthStore } from '../state/authStore';
 import { preRiskCheck, createOrder, pollOrderStatus, type OrderStatusResponse } from '../api/cashfreeApi';
 import { submitTransactionFeedback } from '../api/transactionApi';
-import { AlertTriangle, CheckCircle, X, Loader2, Zap } from 'lucide-react';
+import { AlertTriangle, CheckCircle, X, Loader2, Zap, Lock } from 'lucide-react';
 import { PinInputModal } from './PinInputModal';
 import { FraudReasonEngine } from './FraudReasonEngine';
 import { BehavioralProfileCard } from './BehavioralProfileCard';
@@ -166,9 +166,10 @@ export function PaymentFlow({ onComplete, onCancel }: { onComplete: () => void; 
   const [showPinModal, setShowPinModal] = useState(false);
   const [pinError, setPinError] = useState<string | undefined>();
   const [pinAttemptsRemaining, setPinAttemptsRemaining] = useState<number | undefined>();
+  const [isPinLocked, setIsPinLocked] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
 
-  // Handle PIN submission
+  // Handle PIN submission (strictly 3 attempts allowed)
   const handlePinSubmit = async (pin: string) => {
     if (!riskAnalysis?.transactionId) {
       setPinError('Transaction ID not found');
@@ -183,6 +184,7 @@ export function PaymentFlow({ onComplete, onCancel }: { onComplete: () => void; 
       setShowPinModal(false);
       setPinError(undefined);
       setPinAttemptsRemaining(undefined);
+      setIsPinLocked(false);
 
       // Execute pending action (payment)
       if (pendingAction) {
@@ -194,13 +196,12 @@ export function PaymentFlow({ onComplete, onCancel }: { onComplete: () => void; 
       setPinError(result.error || 'Incorrect PIN');
       setPinAttemptsRemaining(result.attemptsRemaining);
 
-      // If no attempts remaining, close modal
+      // If no attempts remaining or locked out
       if (result.attemptsRemaining === 0) {
+        setIsPinLocked(true);
         setTimeout(() => {
           setShowPinModal(false);
-          setPinError(undefined);
-          setPinAttemptsRemaining(undefined);
-        }, 2000);
+        }, 2500);
       }
     }
   };
@@ -217,6 +218,11 @@ export function PaymentFlow({ onComplete, onCancel }: { onComplete: () => void; 
   const [highDelaySecs, setHighDelaySecs] = useState<number | null>(null);
 
   const handlePayFlow = async () => {
+    if (isPinLocked) {
+      alert('Your UPI PIN is locked due to 3 incorrect attempts. Please wait 5 minutes before trying again.');
+      return;
+    }
+
     // LOW: proceed with PIN verification
     if (preRiskResult.label === 'LOW') {
       // Show PIN modal
@@ -543,23 +549,39 @@ export function PaymentFlow({ onComplete, onCancel }: { onComplete: () => void; 
               )}
             </div>
           )}
+          {isPinLocked && (
+            <div className="w-full p-4 rounded-xl bg-red-950/40 border border-red-500/50 text-center mb-3">
+              <div className="text-red-400 font-semibold text-sm mb-1 flex items-center justify-center gap-1.5">
+                <Lock className="w-4 h-4 text-red-400" />
+                <span>UPI PIN Blocked (3 Attempts Exceeded)</span>
+              </div>
+              <p className="text-xs text-red-200/80">
+                In accordance with UPI security protocols, you have used all 3 attempts. Please wait 5 minutes before trying again.
+              </p>
+            </div>
+          )}
           <motion.button
             onClick={handlePayFlow}
-            disabled={isCreatingOrder}
+            disabled={isCreatingOrder || isPinLocked || (highDelaySecs !== null && highDelaySecs > 0)}
             className="flex-1 px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-all"
             style={{
-              background: isCreatingOrder ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.2)',
-              border: '1px solid rgba(59, 130, 246, 0.4)',
-              cursor: isCreatingOrder ? 'not-allowed' : 'pointer',
-              opacity: isCreatingOrder ? 0.6 : 1
+              background: (isCreatingOrder || isPinLocked) ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.2)',
+              border: isPinLocked ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(59, 130, 246, 0.4)',
+              cursor: (isCreatingOrder || isPinLocked) ? 'not-allowed' : 'pointer',
+              opacity: (isCreatingOrder || isPinLocked) ? 0.6 : 1
             }}
-            whileHover={!isCreatingOrder ? { scale: 1.01 } : {}}
-            whileTap={!isCreatingOrder ? { scale: 0.99 } : {}}
+            whileHover={!isCreatingOrder && !isPinLocked ? { scale: 1.01 } : {}}
+            whileTap={!isCreatingOrder && !isPinLocked ? { scale: 0.99 } : {}}
           >
             {isCreatingOrder ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="tracking-wide">Creating order...</span>
+              </>
+            ) : isPinLocked ? (
+              <>
+                <Lock className="w-4 h-4 text-red-400" />
+                <span className="tracking-wide text-red-300">PIN Blocked (3 Attempts)</span>
               </>
             ) : (
               <>

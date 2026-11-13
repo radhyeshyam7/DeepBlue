@@ -221,7 +221,9 @@ userSchema.add({
   
   // PIN security
   pin_hash: { type: String },
-  pin_set_at: { type: Date }
+  pin_set_at: { type: Date },
+  pin_failed_attempts: { type: Number, default: 0 },
+  pin_locked_until: { type: Date }
 });
 
 // Update user maturity based on transaction count
