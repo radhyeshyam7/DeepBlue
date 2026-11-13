@@ -284,7 +284,7 @@ export function PaymentFlow({ onComplete, onCancel }: { onComplete: () => void; 
       '#10b981';
 
   // Convert 0-1 score to 0-100 for display
-  const displayScore = Math.round(preRiskResult.score * 100);
+  const displayScore = preRiskResult.riskScore100 !== undefined ? preRiskResult.riskScore100 : (riskAnalysis?.riskScore100 !== undefined ? riskAnalysis.riskScore100 : Math.round(preRiskResult.score * 100));
 
   return (
     <motion.div

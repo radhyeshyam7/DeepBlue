@@ -31,7 +31,8 @@ router.post('/preRisk', async (req, res) => {
       
       if (transaction) {
         // Return the SAME risk score that was calculated during transaction/decision
-        const score = transaction.risk_score / 10; // Convert 0-10 to 0-1 scale
+        const score100 = transaction.risk_score_100 !== undefined ? transaction.risk_score_100 : Math.round((transaction.risk_score || 0) * 10);
+        const score = score100 / 100;
         const label = transaction.risk_level;
         const reasons = transaction.reason_codes || [];
         
@@ -41,7 +42,7 @@ router.post('/preRisk', async (req, res) => {
           score: parseFloat(score.toFixed(2)),
           label,
           reasons,
-          risk_score_100: transaction.risk_score_100 !== undefined ? transaction.risk_score_100 : Math.round(score * 100),
+          risk_score_100: score100,
           fraud_reasons: transaction.fraud_reasons || [],
           shap_percentage_bars: transaction.shap_percentage_bars || [],
           behavioral_comparison: transaction.behavioral_comparison || null
