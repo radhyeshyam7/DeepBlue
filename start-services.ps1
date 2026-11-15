@@ -134,7 +134,7 @@ if (-not (Test-PortActive -Port 3001)) {
 if (-not (Test-PortActive -Port 8080)) {
     Write-Host "[8/8] Checking Apache Airflow Standalone in WSL (port 8080)..." -ForegroundColor Yellow
     try {
-        Start-Process -FilePath "wsl.exe" -ArgumentList "-e bash -c `"export PATH=/home/radhyeshyam_lahoti/airflow_venv/bin:`$PATH; export AIRFLOW_HOME=/home/radhyeshyam_lahoti/airflow; export AIRFLOW__CORE__DAGS_FOLDER=/home/radhyeshyam_lahoti/airflow/dags; export AIRFLOW__CORE__LOAD_EXAMPLES=False; airflow standalone`"" `
+        Start-Process -FilePath "wsl.exe" -ArgumentList "-e /home/radhyeshyam_lahoti/run_airflow.sh" `
             -RedirectStandardOutput (Join-Path $LogsDir "airflow.log") `
             -RedirectStandardError (Join-Path $LogsDir "airflow_err.log") `
             -WindowStyle Hidden

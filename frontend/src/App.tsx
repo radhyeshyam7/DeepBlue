@@ -168,7 +168,7 @@ export default function App() {
         {/* Main content area - Standardized max-w-2xl for all pages */}
         <div className="flex items-center justify-center px-4 py-6 sm:py-8">
           <motion.div
-            className="w-full max-w-2xl rounded-2xl p-5 sm:p-7 relative shadow-2xl transition-all duration-300"
+            className={`w-full ${currentPage === 'fraud-center' ? 'max-w-6xl' : 'max-w-2xl'} rounded-2xl p-5 sm:p-7 relative shadow-2xl transition-all duration-300`}
             style={{
               backgroundColor: '#080E1EF8',
               border: '1px solid rgba(59, 130, 246, 0.28)',

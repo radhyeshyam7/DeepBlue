@@ -15,4 +15,4 @@ feature_names:
 - payee_risk_factor
 - behavioral_composite_score
 model_path: mlops/artifacts/isolation_forest.joblib
-run_id: 65578cd8f1a841a1b41fae18ac14213d
+run_id: cb3b65048f0a477a80a2c1a0b9a2836f

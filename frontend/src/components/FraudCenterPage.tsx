@@ -65,6 +65,19 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
   const pctMed = Math.round(((dist.medium || 0) / totalDist) * 100);
   const pctHigh = Math.round(((dist.high || 0) / totalDist) * 100);
 
+  const formatAmount = (amt: any) => {
+    const num = Number(amt);
+    if (isNaN(num)) return `₹${amt}`;
+    if (num >= 1e11) return '₹10,000 Cr+';
+    if (num >= 1e9) return `₹${(num / 1e7).toFixed(1)} Cr`;
+    return `₹${num.toLocaleString('en-IN')}`;
+  };
+
+  const sanitizeTrigger = (reason: string) => {
+    if (!reason) return 'Amount spike vs baseline';
+    return reason.replace(/\d+\.?\d*e\+\d+x/gi, '>10,000x');
+  };
+
   const transactions = (stats?.recent_suspicious || []).filter((t: any) =>
     searchTerm === '' ||
     t.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -282,7 +295,7 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
 
       {/* Recent Suspicious Transactions Table */}
       <div
-        className="card-solid-navy rounded-xl p-4 sm:p-5 shadow-lg space-y-4"
+        className="card-solid-navy rounded-xl p-4 sm:p-5 shadow-lg space-y-4 overflow-hidden"
         style={{
           backgroundColor: '#0D1836',
           border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -295,16 +308,17 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
           </div>
 
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search by ID or payee..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-blue-300/40 focus:outline-none focus:border-cyan-400 w-full sm:w-56"
+              className="rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder-blue-300/40 focus:outline-none focus:border-cyan-400 w-full sm:w-64"
               style={{
                 backgroundColor: '#0B132B',
                 border: '1px solid rgba(59, 130, 246, 0.35)',
+                paddingLeft: '2.25rem',
               }}
             />
           </div>
@@ -312,12 +326,12 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
 
         {/* Table */}
         <div
-          className="overflow-x-auto rounded-lg"
+          className="overflow-x-auto w-full rounded-lg"
           style={{
             border: '1px solid rgba(59, 130, 246, 0.25)',
           }}
         >
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[780px] text-left text-xs">
             <thead
               className="text-blue-200 text-[11px] uppercase tracking-wider"
               style={{
@@ -326,13 +340,13 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
               }}
             >
               <tr>
-                <th className="py-2.5 px-3">Transaction</th>
-                <th className="py-2.5 px-3">Amount</th>
-                <th className="py-2.5 px-3">Payee</th>
-                <th className="py-2.5 px-3">Risk Score</th>
-                <th className="py-2.5 px-3">Primary Trigger</th>
-                <th className="py-2.5 px-3">Feedback</th>
-                <th className="py-2.5 px-3 text-right">Inspect</th>
+                <th className="py-2.5 px-3 w-28 whitespace-nowrap">Transaction</th>
+                <th className="py-2.5 px-3 w-32 whitespace-nowrap">Amount</th>
+                <th className="py-2.5 px-3 w-48 whitespace-nowrap">Payee</th>
+                <th className="py-2.5 px-3 w-24 whitespace-nowrap">Risk Score</th>
+                <th className="py-2.5 px-3 min-w-[220px] whitespace-nowrap">Primary Trigger</th>
+                <th className="py-2.5 px-3 w-28 whitespace-nowrap">Feedback</th>
+                <th className="py-2.5 px-3 w-20 text-right whitespace-nowrap">Inspect</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-blue-500/10">
@@ -340,16 +354,16 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
                 transactions.map((tx: any) => {
                   return (
                     <tr key={tx.id} className="hover:bg-blue-600/10 transition-colors">
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-blue-200">
+                      <td className="py-2.5 px-3 font-mono text-[11px] text-blue-200 whitespace-nowrap">
                         {tx.id.slice(0, 8)}...
                       </td>
-                      <td className="py-2.5 px-3 font-semibold text-white">
-                        ₹{Number(tx.amount).toLocaleString()}
+                      <td className="py-2.5 px-3 font-semibold text-white font-mono whitespace-nowrap">
+                        {formatAmount(tx.amount)}
                       </td>
-                      <td className="py-2.5 px-3 font-mono text-cyan-300">
+                      <td className="py-2.5 px-3 font-mono text-cyan-300 max-w-[180px] truncate" title={tx.payee}>
                         {tx.payee}
                       </td>
-                      <td className="py-2.5 px-3">
+                      <td className="py-2.5 px-3 whitespace-nowrap">
                         <span
                           className="inline-flex items-center gap-1 font-mono font-bold px-2 py-0.5 rounded text-[11px] text-cyan-300"
                           style={{
@@ -360,12 +374,12 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
                           {tx.risk_score_100}/100
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 text-blue-100/90 max-w-xs truncate">
+                      <td className="py-2.5 px-3 text-blue-100/90 max-w-xs truncate" title={tx.fraud_reasons?.[0]}>
                         {tx.fraud_reasons && tx.fraud_reasons.length > 0
-                          ? tx.fraud_reasons[0]
+                          ? sanitizeTrigger(tx.fraud_reasons[0])
                           : 'Amount spike vs baseline'}
                       </td>
-                      <td className="py-2.5 px-3">
+                      <td className="py-2.5 px-3 whitespace-nowrap">
                         {tx.feedback ? (
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded font-medium ${
@@ -385,7 +399,7 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
                           <span className="text-[10px] text-blue-300/40">Pending</span>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 text-right">
+                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
                         <button
                           onClick={() => setSelectedTxn(tx)}
                           className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-medium transition-colors inline-flex items-center gap-1"
@@ -470,7 +484,7 @@ export function FraudCenterPage({ onBack }: FraudCenterPageProps) {
               >
                 <div>
                   <span className="text-[10px] text-blue-300/70 block">Amount</span>
-                  <span className="text-sm font-bold text-white">₹{Number(selectedTxn.amount).toLocaleString()}</span>
+                  <span className="text-sm font-bold text-white">{formatAmount(selectedTxn.amount)}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-blue-300/70 block">Risk Score</span>

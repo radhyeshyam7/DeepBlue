@@ -603,8 +603,10 @@ function buildFraudReasonsList(riskLevel, currentAmount, features, userProfile, 
 
   if (riskLevel === 'HIGH' || riskLevel === 'MEDIUM') {
     if (currentAmount >= 5000 || (currentAmount / avgAmt) >= 2.0) {
-      const ratio = (currentAmount / avgAmt).toFixed(1);
-      reasonsList.push(`Amount is ${ratio}x your typical transaction (₹${currentAmount.toLocaleString()} vs typical ₹${avgAmt.toLocaleString()})`);
+      const rawRatio = currentAmount / avgAmt;
+      const ratioStr = rawRatio > 10000 ? '>10,000' : rawRatio.toFixed(1);
+      const amtStr = currentAmount > 100000000 ? '₹10 Cr+' : `₹${currentAmount.toLocaleString('en-IN')}`;
+      reasonsList.push(`Amount is ${ratioStr}x your typical transaction (${amtStr} vs typical ₹${avgAmt.toLocaleString('en-IN')})`);
     }
 
     if (features.payee?.is_new_payee) {
