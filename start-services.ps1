@@ -13,15 +13,33 @@ if (-not (Test-Path $MongoData)) { New-Item -ItemType Directory -Path $MongoData
 
 function Test-PortActive {
     param([int]$Port)
-    $client = New-Object System.Net.Sockets.TcpClient
     try {
+        $client = New-Object System.Net.Sockets.TcpClient
         $client.Connect('127.0.0.1', $Port)
+        $client.Close()
         return $true
     } catch {
-        return $false
-    } finally {
-        $client.Close()
+        try {
+            $client6 = New-Object System.Net.Sockets.TcpClient
+            $client6.Connect('::1', $Port)
+            $client6.Close()
+            return $true
+        } catch {
+            return $false
+        }
     }
+}
+
+function Start-DetachedProcess {
+    param(
+        [string]$CommandLine,
+        [string]$WorkingDirectory = $Root
+    )
+    $args = @{
+        CommandLine = $CommandLine
+        CurrentDirectory = $WorkingDirectory
+    }
+    Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments $args | Out-Null
 }
 
 Write-Host "`n========================================================" -ForegroundColor Cyan
@@ -31,14 +49,15 @@ Write-Host "========================================================`n" -Foregro
 # 1. MongoDB (Port 27017)
 if (-not (Test-PortActive -Port 27017)) {
     Write-Host "[1/8] Starting MongoDB (port 27017)..." -ForegroundColor Yellow
-    $mongoBin = "C:\Program Files\MongoDB\Server\8.3\bin\mongod.exe"
-    if (-not (Test-Path $mongoBin)) {
+    try {
+        Start-Service -Name MongoDB -ErrorAction SilentlyContinue
+    } catch {}
+    if (-not (Test-PortActive -Port 27017)) {
         $mongoBin = (Get-ChildItem -Path "C:\Program Files\MongoDB\Server\*\bin\mongod.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+        if ($mongoBin) {
+            Start-DetachedProcess -CommandLine "`"$mongoBin`" --dbpath `"$MongoData`" --port 27017 --bind_ip 127.0.0.1" -WorkingDirectory $Root
+        }
     }
-    Start-Process -FilePath $mongoBin -ArgumentList "--dbpath `"$MongoData`" --port 27017 --bind_ip 127.0.0.1" `
-        -RedirectStandardOutput (Join-Path $LogsDir "mongodb.log") `
-        -RedirectStandardError (Join-Path $LogsDir "mongodb_err.log") `
-        -WindowStyle Hidden
     Start-Sleep -Seconds 2
 } else {
     Write-Host "[1/8] MongoDB is already running on port 27017." -ForegroundColor Green
@@ -47,12 +66,9 @@ if (-not (Test-PortActive -Port 27017)) {
 # 2. FastAPI ML Microservice (Port 8001)
 if (-not (Test-PortActive -Port 8001)) {
     Write-Host "[2/8] Starting FastAPI ML Microservice (port 8001)..." -ForegroundColor Yellow
-    $uvicorn = Join-Path $Root "venv_mlops\Scripts\uvicorn.exe"
-    Start-Process -FilePath $uvicorn -ArgumentList "ml_service.app.main:app --host 127.0.0.1 --port 8001" `
-        -WorkingDirectory $Root `
-        -RedirectStandardOutput (Join-Path $LogsDir "fastapi.log") `
-        -RedirectStandardError (Join-Path $LogsDir "fastapi_err.log") `
-        -WindowStyle Hidden
+    $py = Join-Path $Root "venv_mlops\Scripts\python.exe"
+    $cmd = "cmd.exe /c `"`"$py`" -m uvicorn ml_service.app.main:app --host 127.0.0.1 --port 8001 > `"$LogsDir\fastapi.log`" 2> `"$LogsDir\fastapi_err.log`"`""
+    Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $Root
     Start-Sleep -Seconds 2
 } else {
     Write-Host "[2/8] FastAPI is already running on port 8001." -ForegroundColor Green
@@ -61,11 +77,9 @@ if (-not (Test-PortActive -Port 8001)) {
 # 3. Node.js Backend Gateway (Port 3000)
 if (-not (Test-PortActive -Port 3000)) {
     Write-Host "[3/8] Starting Node.js Backend Gateway (port 3000)..." -ForegroundColor Yellow
-    Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run dev" `
-        -WorkingDirectory (Join-Path $Root "backend") `
-        -RedirectStandardOutput (Join-Path $LogsDir "backend.log") `
-        -RedirectStandardError (Join-Path $LogsDir "backend_err.log") `
-        -WindowStyle Hidden
+    $backendDir = Join-Path $Root "backend"
+    $cmd = "cmd.exe /c `"npm run dev > `"$LogsDir\backend.log`" 2> `"$LogsDir\backend_err.log`"`""
+    Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $backendDir
     Start-Sleep -Seconds 3
 } else {
     Write-Host "[3/8] Backend is already running on port 3000." -ForegroundColor Green
@@ -74,11 +88,9 @@ if (-not (Test-PortActive -Port 3000)) {
 # 4. React Vite Frontend (Port 5173)
 if (-not (Test-PortActive -Port 5173)) {
     Write-Host "[4/8] Starting React Frontend UI (port 5173)..." -ForegroundColor Yellow
-    Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run dev" `
-        -WorkingDirectory (Join-Path $Root "frontend") `
-        -RedirectStandardOutput (Join-Path $LogsDir "frontend.log") `
-        -RedirectStandardError (Join-Path $LogsDir "frontend_err.log") `
-        -WindowStyle Hidden
+    $frontendDir = Join-Path $Root "frontend"
+    $cmd = "cmd.exe /c `"npm run dev > `"$LogsDir\frontend.log`" 2> `"$LogsDir\frontend_err.log`"`""
+    Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $frontendDir
     Start-Sleep -Seconds 3
 } else {
     Write-Host "[4/8] Frontend is already running on port 5173." -ForegroundColor Green
@@ -87,12 +99,9 @@ if (-not (Test-PortActive -Port 5173)) {
 # 5. MLflow Tracking UI (Port 5000)
 if (-not (Test-PortActive -Port 5000)) {
     Write-Host "[5/8] Starting MLflow Tracking UI (port 5000)..." -ForegroundColor Yellow
-    $python = Join-Path $Root "venv_mlops\Scripts\python.exe"
-    Start-Process -FilePath $python -ArgumentList "-m mlflow ui --backend-store-uri sqlite:///D:/DeepBlue4/mlops/mlflow.db --artifacts-destination D:/DeepBlue4/mlops/mlruns --host 127.0.0.1 --port 5000" `
-        -WorkingDirectory $Root `
-        -RedirectStandardOutput (Join-Path $LogsDir "mlflow.log") `
-        -RedirectStandardError (Join-Path $LogsDir "mlflow_err.log") `
-        -WindowStyle Hidden
+    $py = Join-Path $Root "venv_mlops\Scripts\python.exe"
+    $cmd = "cmd.exe /c `"`"$py`" -m mlflow ui --backend-store-uri sqlite:///D:/DeepBlue4/mlops/mlflow.db --artifacts-destination D:/DeepBlue4/mlops/mlruns --host 127.0.0.1 --port 5000 > `"$LogsDir\mlflow.log`" 2> `"$LogsDir\mlflow_err.log`"`""
+    Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $Root
     Start-Sleep -Seconds 2
 } else {
     Write-Host "[5/8] MLflow UI is already running on port 5000." -ForegroundColor Green
@@ -104,11 +113,8 @@ if (-not (Test-PortActive -Port 9090)) {
     $promExe = Join-Path $Root "monitoring\prometheus-2.54.1.windows-amd64\prometheus.exe"
     $promCfg = Join-Path $Root "monitoring\prometheus\prometheus.yml"
     $promData = Join-Path $Root "monitoring\prometheus-data"
-    Start-Process -FilePath $promExe -ArgumentList "--config.file=`"$promCfg`" --storage.tsdb.path=`"$promData`"" `
-        -WorkingDirectory $Root `
-        -RedirectStandardOutput (Join-Path $LogsDir "prometheus.log") `
-        -RedirectStandardError (Join-Path $LogsDir "prometheus_err.log") `
-        -WindowStyle Hidden
+    $cmd = "cmd.exe /c `"`"$promExe`" --config.file=`"$promCfg`" --storage.tsdb.path=`"$promData`" > `"$LogsDir\prometheus.log`" 2> `"$LogsDir\prometheus_err.log`"`""
+    Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $Root
     Start-Sleep -Seconds 2
 } else {
     Write-Host "[6/8] Prometheus is already running on port 9090." -ForegroundColor Green
@@ -120,11 +126,8 @@ if (-not (Test-PortActive -Port 3001)) {
     $grafanaExe = Join-Path $Root "monitoring\grafana-v11.2.0\bin\grafana-server.exe"
     $grafanaCfg = Join-Path $Root "monitoring\grafana.ini"
     $grafanaHome = Join-Path $Root "monitoring\grafana-v11.2.0"
-    Start-Process -FilePath $grafanaExe -ArgumentList "--config=`"$grafanaCfg`" --homepath=`"$grafanaHome`"" `
-        -WorkingDirectory $grafanaHome `
-        -RedirectStandardOutput (Join-Path $LogsDir "grafana.log") `
-        -RedirectStandardError (Join-Path $LogsDir "grafana_err.log") `
-        -WindowStyle Hidden
+    $cmd = "cmd.exe /c `"`"$grafanaExe`" --config=`"$grafanaCfg`" --homepath=`"$grafanaHome`" > `"$LogsDir\grafana.log`" 2> `"$LogsDir\grafana_err.log`"`""
+    Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $grafanaHome
     Start-Sleep -Seconds 2
 } else {
     Write-Host "[7/8] Grafana is already running on port 3001." -ForegroundColor Green
@@ -134,10 +137,8 @@ if (-not (Test-PortActive -Port 3001)) {
 if (-not (Test-PortActive -Port 8080)) {
     Write-Host "[8/8] Checking Apache Airflow Standalone in WSL (port 8080)..." -ForegroundColor Yellow
     try {
-        Start-Process -FilePath "wsl.exe" -ArgumentList "-e /home/radhyeshyam_lahoti/run_airflow.sh" `
-            -RedirectStandardOutput (Join-Path $LogsDir "airflow.log") `
-            -RedirectStandardError (Join-Path $LogsDir "airflow_err.log") `
-            -WindowStyle Hidden
+        $cmd = "cmd.exe /c `"wsl.exe -e /home/radhyeshyam_lahoti/run_airflow.sh > `"$LogsDir\airflow.log`" 2> `"$LogsDir\airflow_err.log`"`""
+        Start-DetachedProcess -CommandLine $cmd -WorkingDirectory $Root
         Start-Sleep -Seconds 3
     } catch {
         Write-Host "Airflow standalone in WSL skipped or not installed in WSL." -ForegroundColor DarkGray
@@ -147,7 +148,7 @@ if (-not (Test-PortActive -Port 8080)) {
 }
 
 Write-Host "`nWaiting for all services to initialize..." -ForegroundColor Cyan
-Start-Sleep -Seconds 4
+Start-Sleep -Seconds 6
 
 Write-Host "`n=== DEEPBLUE AI PORT STATUS AUDIT ===" -ForegroundColor Cyan
 $services = @(

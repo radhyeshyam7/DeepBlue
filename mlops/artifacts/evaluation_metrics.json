@@ -10,7 +10,7 @@
     "false_positive_rate": 0.0,
     "false_negative_rate": 0.0125,
     "roc_auc": 1.0,
-    "avg_inference_latency_ms": 8.082,
+    "avg_inference_latency_ms": 8.664,
     "test_sample_count": 1000,
     "test_fraud_count": 80,
     "true_positives": 79,
@@ -20,5 +20,5 @@
   },
   "quality_gate_passed": true,
   "status": "PASS",
-  "timestamp": "2026-11-15 06:30:18"
+  "timestamp": "2026-11-17 03:52:31"
 }
